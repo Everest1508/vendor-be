@@ -20,3 +20,7 @@ class VendorPerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendor
         fields = ['id', 'name', 'on_time_delivery_rate', 'quality_rating_avg', 'average_response_time', 'fulfillment_rate']
+
+class AssignVendorToPOSerializer(serializers.Serializer):
+    po_id = serializers.IntegerField()
+    vendor_id = serializers.IntegerField()
