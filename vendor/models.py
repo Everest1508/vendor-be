@@ -1,3 +1,7 @@
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from django.utils import timezone
+from .models import PurchaseOrder, HistoricalPerformance
 from django.db import models
 
 class Vendor(models.Model):
@@ -39,4 +43,34 @@ class HistoricalPerformance(models.Model):
     def __str__(self):
         return f"{self.vendor.name} - {self.date}"
     
-    
+
+
+@receiver(post_save, sender=PurchaseOrder)
+def update_performance_metrics(sender, instance, created, **kwargs):
+    if instance.status == 'completed':
+        update_on_time_delivery_rate(instance.vendor)
+        
+    if instance.quality_rating is not None:
+        update_quality_rating_avg(instance.vendor)
+
+@receiver(pre_save, sender=PurchaseOrder)
+def update_acknowledgment_date(sender, instance, **kwargs):
+    if instance.status == 'acknowledged' and not instance.acknowledgment_date:
+        instance.acknowledgment_date = timezone.now()
+
+def update_on_time_delivery_rate(vendor):
+    completed_pos = PurchaseOrder.objects.filter(vendor=vendor, status='completed')
+    on_time_deliveries = completed_pos.filter(delivery_date__lte=timezone.now())
+    total_completed_pos = completed_pos.count()
+    if total_completed_pos > 0:
+        on_time_delivery_rate = on_time_deliveries.count() / total_completed_pos
+        vendor.on_time_delivery_rate = on_time_delivery_rate
+        vendor.save()
+
+def update_quality_rating_avg(vendor):
+    completed_pos = PurchaseOrder.objects.filter(vendor=vendor, status='completed', quality_rating__isnull=False)
+    quality_ratings = completed_pos.values_list('quality_rating', flat=True)
+    if quality_ratings:
+        quality_rating_avg = sum(quality_ratings) / len(quality_ratings)
+        vendor.quality_rating_avg = quality_rating_avg
+        vendor.save()
