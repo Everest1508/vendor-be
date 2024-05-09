@@ -106,8 +106,8 @@ class VendorPerformanceViewSet(viewsets.ViewSet):
         po.save()
         return Response("Acknowledgment updated successfully", status=status.HTTP_200_OK)
 
-class AssignVendorToPOViewSet(viewsets.ViewSet):
-    def create(self, request):
+class AssignVendorToPOAPIView(APIView):
+    def post(self, request):
         serializer = AssignVendorToPOSerializer(data=request.data)
         if serializer.is_valid():
             po_id = serializer.validated_data.get('po_id')
