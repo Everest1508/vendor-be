@@ -5,6 +5,6 @@ urlpatterns = [
     path("vendors/<int:vendor_id>/",VendorDetailView.as_view(),name="detail-vendors"),
     path("purchase-orders/", PurchaseOrderListCreateView.as_view()),
     path("purchase-orders/<int:po_id>/", PurchaseOrderDetailView.as_view()),
-    path('api/purchase_orders/<int:pk>/acknowledge/', VendorPerformanceViewSet.as_view({'post': 'update_acknowledgment'}), name='acknowledge-po'),
-    path('api/vendors/<int:pk>/performance/', VendorPerformanceViewSet.as_view({'get': 'retrieve'}), name='vendor-performance'),
+    path("purchase_orders/<int:pk>/acknowledge/", VendorPerformanceViewSet.as_view({'post': 'update_acknowledgment'}), name='acknowledge-po'),
+    path("vendors/<int:pk>/performance/", VendorPerformanceViewSet.as_view({'get': 'retrieve'}), name='vendor-performance'),
 ]
