@@ -51,11 +51,18 @@ def update_performance_metrics(sender, instance, created, **kwargs):
         
     if instance.quality_rating is not None:
         update_quality_rating_avg(instance.vendor)
+        
+    if instance.status != 'acknowledged':
+        update_fulfillment_rate(instance.vendor)
 
 @receiver(pre_save, sender=PurchaseOrder)
 def update_acknowledgment_date(sender, instance, **kwargs):
     if instance.status == 'acknowledged' and not instance.acknowledgment_date:
         instance.acknowledgment_date = timezone.now()
+
+@receiver(post_save, sender=Vendor)
+def update_vendor_performance(sender, instance, created, **kwargs):
+    update_historical_performance(instance)
 
 def update_on_time_delivery_rate(vendor):
     completed_pos = PurchaseOrder.objects.filter(vendor=vendor, status='completed')
@@ -66,6 +73,15 @@ def update_on_time_delivery_rate(vendor):
         vendor.on_time_delivery_rate = on_time_delivery_rate
         vendor.save()
 
+        HistoricalPerformance.objects.create(
+            vendor=vendor,
+            date=timezone.now(),
+            on_time_delivery_rate=vendor.on_time_delivery_rate,
+            quality_rating_avg=vendor.quality_rating_avg,
+            average_response_time=vendor.average_response_time,
+            fulfillment_rate=vendor.fulfillment_rate
+        )
+
 def update_quality_rating_avg(vendor):
     completed_pos = PurchaseOrder.objects.filter(vendor=vendor, status='completed', quality_rating__isnull=False)
     quality_ratings = completed_pos.values_list('quality_rating', flat=True)
@@ -73,3 +89,39 @@ def update_quality_rating_avg(vendor):
         quality_rating_avg = sum(quality_ratings) / len(quality_ratings)
         vendor.quality_rating_avg = quality_rating_avg
         vendor.save()
+
+        HistoricalPerformance.objects.create(
+            vendor=vendor,
+            date=timezone.now(),
+            on_time_delivery_rate=vendor.on_time_delivery_rate,
+            quality_rating_avg=vendor.quality_rating_avg,
+            average_response_time=vendor.average_response_time,
+            fulfillment_rate=vendor.fulfillment_rate
+        )
+
+def update_fulfillment_rate(vendor):
+    total_pos = PurchaseOrder.objects.filter(vendor=vendor).count()
+    completed_pos = PurchaseOrder.objects.filter(vendor=vendor, status='completed').count()
+    if total_pos > 0:
+        fulfillment_rate = completed_pos / total_pos
+        vendor.fulfillment_rate = fulfillment_rate
+        vendor.save()
+
+        HistoricalPerformance.objects.create(
+            vendor=vendor,
+            date=timezone.now(),
+            on_time_delivery_rate=vendor.on_time_delivery_rate,
+            quality_rating_avg=vendor.quality_rating_avg,
+            average_response_time=vendor.average_response_time,
+            fulfillment_rate=vendor.fulfillment_rate
+        )
+
+def update_historical_performance(vendor):
+    HistoricalPerformance.objects.create(
+        vendor=vendor,
+        date=timezone.now(),
+        on_time_delivery_rate=vendor.on_time_delivery_rate,
+        quality_rating_avg=vendor.quality_rating_avg,
+        average_response_time=vendor.average_response_time,
+        fulfillment_rate=vendor.fulfillment_rate
+    )
