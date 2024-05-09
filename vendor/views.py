@@ -90,3 +90,23 @@ class PurchaseOrderDetailView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except PurchaseOrder.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+from rest_framework import serializers, viewsets, status
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from .models import Vendor
+
+
+class VendorPerformanceViewSet(viewsets.ViewSet):
+    def retrieve(self, request, pk=None):
+        vendor = get_object_or_404(Vendor, pk=pk)
+        serializer = VendorPerformanceSerializer(vendor)
+        return Response(serializer.data)
+
+    def update_acknowledgment(self, request, pk=None):
+        po_id = request.data.get('po_id')
+        po = get_object_or_404(PurchaseOrder, pk=po_id)
+        po.status = 'acknowledged'
+        po.acknowledgment_date = timezone.now()
+        po.save()
+        return Response("Acknowledgment updated successfully", status=status.HTTP_200_OK)
