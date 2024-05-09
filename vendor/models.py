@@ -18,7 +18,7 @@ class PurchaseOrder(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     order_date = models.DateTimeField()
     delivery_date = models.DateTimeField()
-    items = models.JSONField()
+    items = models.JSONField() 
     quantity = models.IntegerField()
     status = models.CharField(max_length=50)
     quality_rating = models.FloatField(null=True, blank=True)
@@ -38,3 +38,5 @@ class HistoricalPerformance(models.Model):
 
     def __str__(self):
         return f"{self.vendor.name} - {self.date}"
+    
+    
