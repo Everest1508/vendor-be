@@ -92,8 +92,6 @@ class PurchaseOrderDetailView(APIView):
         except PurchaseOrder.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-
-
 class VendorPerformanceViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         vendor = get_object_or_404(Vendor, pk=pk)
