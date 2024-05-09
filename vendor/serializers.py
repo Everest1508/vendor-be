@@ -4,7 +4,7 @@ from .models import PurchaseOrder,Vendor,HistoricalPerformance
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendor
-        fields = "__all__"
+        fields = ["id","name","contact_details","address","vendor_code"]
         
 class HistoricalPerformanceSerializer(serializers.ModelSerializer):
     class Meta:
