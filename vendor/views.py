@@ -105,3 +105,20 @@ class VendorPerformanceViewSet(viewsets.ViewSet):
         po.acknowledgment_date = timezone.now()
         po.save()
         return Response("Acknowledgment updated successfully", status=status.HTTP_200_OK)
+
+class AssignVendorToPOViewSet(viewsets.ViewSet):
+    def create(self, request):
+        serializer = AssignVendorToPOSerializer(data=request.data)
+        if serializer.is_valid():
+            po_id = serializer.validated_data.get('po_id')
+            vendor_id = serializer.validated_data.get('vendor_id')
+            
+            po = get_object_or_404(PurchaseOrder, pk=po_id)
+            vendor = get_object_or_404(Vendor, pk=vendor_id)
+
+            po.vendor = vendor
+            po.save()
+
+            return Response("Vendor assigned to purchase order successfully", status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
