@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from .models import Vendor,PurchaseOrder,HistoricalPerformance
-from .serializers import VendorSerializer,VendorPerformanceSerializer,PurchaseOrderSerializer
+from .serializers import VendorSerializer,VendorPerformanceSerializer,PurchaseOrderSerializer,AssignVendorToPOSerializer
 
 class VendorListCreateAPIView(APIView):
     def get(self,request):
