@@ -1,9 +1,10 @@
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from .models import Vendor,PurchaseOrder,HistoricalPerformance
-from .serializers import VendorSerializer
+from .serializers import VendorSerializer,VendorPerformanceSerializer
 
 class VendorListCreateAPIView(APIView):
     def get(self,request):
@@ -91,10 +92,6 @@ class PurchaseOrderDetailView(APIView):
         except PurchaseOrder.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-from rest_framework import serializers, viewsets, status
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from .models import Vendor
 
 
 class VendorPerformanceViewSet(viewsets.ViewSet):
